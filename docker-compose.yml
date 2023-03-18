@@ -1,0 +1,94 @@
+version: "3.8"
+
+volumes:
+  awt_data:
+    name: awt_data
+  awt_data_backups:
+    name: awt_data_backups
+
+  media_data:
+    name: awt_media_data
+  static_data:
+    name: awt_static_data
+
+networks:
+  awt_internal:
+    name: awt_internal
+
+services:
+  traefik:
+    image: traefik
+    container_name: awt_proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.localweb.address=:8000
+    restart: unless-stopped
+    networks:
+      - awt_internal
+    ports:
+      - 8000:8000
+
+  frontend:
+    container_name: awt_front
+    build:
+      context: ./frontend/
+      dockerfile: ./Dockerfile
+    image: awt_front
+    restart: unless-stopped
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/tailwind.config.cjs:/app/tailwind.config.cjs
+    networks:
+      - awt_internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.awt_front.rule=Host(`localhost`)
+      - traefik.http.routers.awt_front.entrypoints=localweb
+      - traefik.http.services.awt_front.loadbalancer.server.port=3000
+
+  django:
+    restart: always
+    container_name: awt_back_django
+    build:
+      context: ./backend/
+      dockerfile: ./Dockerfile
+    platform: linux/x86_64
+    image: awt_back_django
+    command: /start-django.sh
+    volumes:
+      - ./backend/src:/app
+      - ./backend/pytest.ini:/app/pytest.ini
+      - media_data:/mediafiles
+      - static_data:/staticfiles
+    env_file:
+      - ./backend/local.env
+    depends_on:
+      - postgres
+    networks:
+      - awt_internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.awt_back.rule=Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/accounts`))
+      - traefik.http.routers.awt_back.entrypoints=localweb
+      - traefik.http.services.awt_back.loadbalancer.server.port=80
+
+  postgres:
+    container_name: awt_postgres
+    build:
+      context: ./backend/
+      dockerfile: ./postgres/Dockerfile
+    image: awt_back_postgres
+    restart: unless-stopped
+    volumes:
+      - awt_data:/var/lib/postgresql/data
+      - awt_data_backups:/backups
+    env_file:
+      - ./backend/local.env
+    networks:
+      - awt_internal
