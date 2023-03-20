@@ -172,3 +172,4 @@ package.json
 yarn.lock
 
 backups/
+.idea/
