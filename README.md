@@ -7,3 +7,7 @@ Build project
 Start containers
 
 `docker compose up`
+
+Create superuser
+`docker exec -it awt_back_django sh`
+`python manage.py createsuperuser --noinput`
