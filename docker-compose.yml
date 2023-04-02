@@ -92,3 +92,21 @@ services:
       - ./backend/local.env
     networks:
       - awt_internal
+
+  media_server:
+    container_name: awt_local_back_media
+    build:
+      context: ./backend/
+      dockerfile: ./media_server/Dockerfile
+    image: sora_prod_back_media
+    restart: unless-stopped
+    volumes:
+      - media_data:/usr/share/nginx/media/:ro
+      - static_data:/usr/share/nginx/static/:ro
+    networks:
+      - awt_internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.awt_local_back_media.rule=Host(`localhost`) && (PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.awt_local_back_media.entrypoints=localweb
+      - traefik.http.services.awt_local_back_media.loadbalancer.server.port=80
