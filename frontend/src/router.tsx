@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 import { CalendarViewRoot }    from "./views/CalendarViewRoot"
 import LoginInterface from "./components/LoginInterface"
-import RegisterInterface from "./components/LoginInterface"
+import RegisterInterface from "./components/RegisterInterface"
 
 
 export const router = createBrowserRouter([
