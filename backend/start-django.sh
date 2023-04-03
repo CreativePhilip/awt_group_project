@@ -7,7 +7,7 @@ set -o nounset
 echo "### STARTING DJANGO DEVELOPMENT SERVER ###"
 
 echo "### Making migrations..."
-python manage.py makemigrations
+python manage.py makemigrations awt
 
 echo "### Migrating..."
 python manage.py migrate
