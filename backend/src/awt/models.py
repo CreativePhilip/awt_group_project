@@ -10,10 +10,12 @@ class Meeting(models.Model):
     duration = models.TimeField()
     is_private = models.BooleanField()
     is_cancelled = models.BooleanField()
-    cancellation_reason: models.TextField()
+    cancellation_reason = models.TextField(default="")
 
 
 class UserMeetingRelation(models.Model):
-    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
-    is_owner = models.BooleanField
+    meeting = models.ForeignKey(
+        Meeting, related_name="participants", on_delete=models.CASCADE
+    )
+    is_owner = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
