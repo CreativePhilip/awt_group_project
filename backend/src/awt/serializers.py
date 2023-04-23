@@ -36,3 +36,19 @@ class MeetingSerializer(serializers.ModelSerializer):
             "cancellation_reason",
             "participants",
         ]
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "username", "password"]
+        
+class LoggedInUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username"]
+        
