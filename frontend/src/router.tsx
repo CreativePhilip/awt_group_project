@@ -1,5 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 import { CalendarViewRoot }    from "./views/CalendarViewRoot"
+import React from "react";
+import { CalendarWeekView } from "./views/CalendarWeekView";
 
 
 export const router = createBrowserRouter([
@@ -13,6 +15,12 @@ export const router = createBrowserRouter([
     },
     {
         path   : "/",
-        element: <CalendarViewRoot/>
+        element: <CalendarViewRoot/>,
+        children: [
+            {
+                path: "/week",
+                element: <CalendarWeekView/>
+            }
+        ]
     }
 ])
