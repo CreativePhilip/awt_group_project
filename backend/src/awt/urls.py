@@ -16,12 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from awt.views import MeetingViewSet, LoginView, RegisterView, CurrentUserView
+from awt.views import MeetingViewSet, LoginView, RegisterView, CurrentUserView, UsersViewSet
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 router = routers.DefaultRouter()
 router.register(r"meeting", MeetingViewSet)
+router.register(r"users", UsersViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
