@@ -37,6 +37,7 @@ class MeetingSerializer(serializers.ModelSerializer):
             "participants",
         ]
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -46,9 +47,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "username", "password"]
-        
+
+
 class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username"]
-        
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "username"]
