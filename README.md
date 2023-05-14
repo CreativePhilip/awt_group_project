@@ -11,3 +11,7 @@ Start containers
 Create superuser
 `docker exec -it awt_back_django sh`
 `python manage.py createsuperuser --noinput`
+
+
+Load database
+./manage.py loaddata db.json
