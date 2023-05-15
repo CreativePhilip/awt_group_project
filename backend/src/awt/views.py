@@ -30,12 +30,11 @@ class AccountViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
 
 
-
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-   
-  
+
+
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
@@ -101,8 +100,6 @@ class CurrentUserView(APIView):
     ],
 )
 class ValidateMeetingView(APIView):
-    serializer_class = UserMeetingRelationSerializer
-
     def get(self, request: Request):
         user_id = int(request.query_params.get("user_id"))
         proposed_duration = int(request.query_params.get("duration"))
@@ -135,3 +132,50 @@ class ValidateMeetingView(APIView):
         return Response(
             status=200, data={"valid": True}, content_type="application/json"
         )
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Id of the user",
+            type=int,
+            default="1",
+        ),
+        OpenApiParameter(
+            name="start_date",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="In format %d.%m.%Y",
+            type=str,
+            default="08.05.2023",
+        ),
+    ],
+)
+class CalculateTimeSpendWeekly(APIView):
+    def get(self, request: Request):
+        user_id = int(request.query_params.get("user_id"))
+        start_date_value = request.query_params.get("start_date")
+
+        if None in [user_id, start_date_value]:
+            return Response(status=400)
+
+        start_date = datetime.datetime.strptime(start_date_value, "%d.%m.%Y")
+        end_date = start_date + datetime.timedelta(days=6)
+        relations = UserMeetingRelation.objects.get_queryset()
+        result = {i: 0 for i in range(7)}
+
+        for relation in relations:
+            user_id = relation.user.id
+            if user_id != user_id:
+                continue
+
+            meeting = relation.meeting
+            meeting_time = meeting.start_time.replace(tzinfo=None)
+
+            if start_date < meeting_time < end_date:
+                result[meeting_time.weekday()] = int(meeting.duration.seconds / 60)
+
+        return Response(status=200, data=result, content_type="application/json")
