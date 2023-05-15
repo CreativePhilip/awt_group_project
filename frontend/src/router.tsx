@@ -2,16 +2,19 @@ import { createBrowserRouter } from "react-router-dom"
 import { CalendarViewRoot }    from "./views/CalendarViewRoot"
 import React from "react";
 import { CalendarWeekView } from "./views/CalendarWeekView";
+import {LoginView} from "./views/LoginView";
+import {LoggedInRoute} from "./components/LoggedInRoute";
+import {RegisterView} from "./views/RegisterView";
 
 
 export const router = createBrowserRouter([
     {
         path   : "/login",
-        element: <div>Hello world! Login</div>,
+        element: <LoginView/>,
     },
     {
         path   : "/register",
-        element: <div> Hello world! Register </div>
+        element: <RegisterView/>
     },
     {
         path   : "/",
@@ -19,7 +22,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "/week",
-                element: <CalendarWeekView/>
+                element: <LoggedInRoute> <CalendarWeekView/> </LoggedInRoute>
             }
         ]
     }

@@ -3,3 +3,4 @@ django-environ==0.9.0
 psycopg2==2.9.5
 djangorestframework==3.14.0
 drf-spectacular==0.25.1  # https://github.com/tfranzel/drf-spectacular
+django-cors-headers==3.14.0

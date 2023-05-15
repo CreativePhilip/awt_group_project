@@ -34,5 +34,5 @@ urlpatterns = [
     ),
     path("api/login/", LoginView.as_view()),
     path("api/register/", RegisterView.as_view()),
-    path("api/whoami", CurrentUserView.as_view())
+    path("api/whoami/", CurrentUserView.as_view())
 ]
