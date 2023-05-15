@@ -15,26 +15,55 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Meeting',
+            name="Meeting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=256)),
-                ('description', models.TextField(blank=True)),
-                ('note', models.TextField(blank=True)),
-                ('start_time', models.DateTimeField()),
-                ('duration', models.TimeField()),
-                ('is_private', models.BooleanField()),
-                ('is_cancelled', models.BooleanField()),
-                ('cancellation_reason', models.TextField(default='')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=256)),
+                ("description", models.TextField(blank=True)),
+                ("note", models.TextField(blank=True)),
+                ("start_time", models.DateTimeField()),
+                ("duration", models.TimeField()),
+                ("is_private", models.BooleanField()),
+                ("is_cancelled", models.BooleanField()),
+                ("cancellation_reason", models.TextField(default="")),
             ],
         ),
         migrations.CreateModel(
-            name='UserMeetingRelation',
+            name="UserMeetingRelation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_owner', models.BooleanField(default=False)),
-                ('meeting', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='participants', to='awt.meeting')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_owner", models.BooleanField(default=False)),
+                (
+                    "meeting",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="participants",
+                        to="awt.meeting",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
