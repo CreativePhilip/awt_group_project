@@ -52,11 +52,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "id"]
-
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["email", "username"]
+        fields = ["username, id"]

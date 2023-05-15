@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,14 +8,16 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
 from awt.serializers import MeetingSerializer
-from awt.models import Meeting
+from awt.models import Meeting, UserMeetingRelation
 from awt.serializers import (
     LoginSerializer,
     RegisterSerializer,
     LoggedInUserSerializer,
     UserSerializer,
     MeetingSerializer,
+    UserMeetingRelationSerializer,
 )
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -68,3 +71,67 @@ class CurrentUserView(APIView):
     def get(self, request: Request):
         serializer = LoggedInUserSerializer(request.user)
         return Response(serializer.data)
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Id of user",
+            type=int,
+            default="5",
+        ),
+        OpenApiParameter(
+            name="duration",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Duration as minutes",
+            type=int,
+            default="35",
+        ),
+        OpenApiParameter(
+            name="datetime",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Format %d.%m.%Y %H:%M:%S",
+            default="29.06.2021 10:22:00",
+        ),
+    ],
+)
+class ValidateMeetingView(APIView):
+    serializer_class = UserMeetingRelationSerializer
+
+    def get(self, request: Request):
+        user_id = int(request.query_params.get("user_id"))
+        proposed_duration = int(request.query_params.get("duration"))
+        proposed_start_time = request.query_params.get("datetime")
+
+        if None in [user_id, proposed_duration, proposed_start_time]:
+            return Response(status=400)
+
+        for relation in UserMeetingRelation.objects.all():
+            if relation.user_id == user_id:
+                planned_meeting = Meeting.objects.get(id=relation.meeting_id)
+                planned_start = planned_meeting.start_time.replace(tzinfo=None)
+                planned_end = (planned_start + planned_meeting.duration).replace(
+                    tzinfo=None
+                )
+                proposed_start = datetime.datetime.strptime(
+                    proposed_start_time, "%d.%m.%Y %H:%M:%S"
+                )
+                proposed_end = proposed_start + datetime.timedelta(
+                    minutes=proposed_duration
+                )
+
+                if proposed_start < planned_end and planned_start < proposed_end:
+                    return Response(
+                        status=200,
+                        data={"valid": False},
+                        content_type="application/json",
+                    )
+
+        return Response(
+            status=200, data={"valid": True}, content_type="application/json"
+        )
