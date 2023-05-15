@@ -7,10 +7,10 @@ class Meeting(models.Model):
     description = models.TextField(blank=True)
     note = models.TextField(blank=True)
     start_time = models.DateTimeField()
-    duration = models.TimeField()
+    duration = models.DurationField()
     is_private = models.BooleanField()
     is_cancelled = models.BooleanField()
-    cancellation_reason = models.TextField(default="")
+    cancellation_reason = models.TextField(default="", blank=True)
 
 
 class UserMeetingRelation(models.Model):

@@ -8,7 +8,13 @@ from django.contrib.auth.models import User
 
 from awt.serializers import MeetingSerializer
 from awt.models import Meeting
-from awt.serializers import LoginSerializer, RegisterSerializer, LoggedInUserSerializer
+from awt.serializers import (
+    LoginSerializer,
+    RegisterSerializer,
+    LoggedInUserSerializer,
+    UserSerializer,
+    MeetingSerializer,
+)
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -21,6 +27,12 @@ class AccountViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
 
 
+
+class UsersViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+   
+  
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
@@ -36,7 +48,7 @@ class LoginView(APIView):
             return Response(status=204)
 
         return Response(status=404)
-    
+
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
