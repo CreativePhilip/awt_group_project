@@ -27,11 +27,12 @@ class AccountViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
 
 
+
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-
-
+   
+  
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
@@ -41,6 +42,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = authenticate(request, **serializer.validated_data)
+        print(request.data, user)
         if user:
             login(request, user)
             return Response(status=204)
