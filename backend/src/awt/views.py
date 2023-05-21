@@ -164,22 +164,22 @@ class CalculateTimeSpendWeekly(APIView):
             return Response(status=400)
 
         start_date = datetime.datetime.strptime(start_date_value, "%d.%m.%Y")
-        end_date = start_date + datetime.timedelta(days=6)
-        relations = UserMeetingRelation.objects.get_queryset()
-        result = {i: 0 for i in range(7)}
+        end_date = start_date + datetime.timedelta(days=4)
+        relations = UserMeetingRelation.objects.filter(
+            user__id=user_id,
+        )
+        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        data = defaultdict(lambda: 0)
 
         for relation in relations:
-            user_id = relation.user.id
-            if user_id != user_id:
-                continue
-
             meeting = relation.meeting
             meeting_time = meeting.start_time.replace(tzinfo=None)
 
             if start_date < meeting_time < end_date:
-                result[meeting_time.weekday()] = int(meeting.duration.seconds / 60)
+                weekday_number = meeting_time.weekday()
+                data[weekdays[weekday_number]] += int(meeting.duration.seconds / 60)
 
-        return Response(status=200, data=result, content_type="application/json")
+        return Response(status=200, data=data, content_type="application/json")
 
 
 @extend_schema(
@@ -225,11 +225,11 @@ class CalculateTimeSpendMonthly(APIView):
             user__id=user_id,
         )
         data = defaultdict(lambda: 0)
-        
+
         for relation in relations:
             meeting = relation.meeting
             data[meeting.start_time.day] += int(meeting.duration.seconds / 60)
-        
+
         return Response(status=200, data=data, content_type="application/json")
 
 
@@ -266,9 +266,9 @@ class CalculateTimeSpendYearly(APIView):
             user__id=user_id,
         )
         data = defaultdict(lambda: 0)
-        
+
         for relation in relations:
             meeting = relation.meeting
             data[meeting.start_time.month] += int(meeting.duration.seconds / 60)
-        
+
         return Response(status=200, data=data, content_type="application/json")
