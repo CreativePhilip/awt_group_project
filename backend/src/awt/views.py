@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,12 +16,30 @@ from awt.serializers import (
     LoggedInUserSerializer,
     UserSerializer,
     MeetingSerializer,
+    CreateMeetingSerializer,
 )
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
     serializer_class = MeetingSerializer
     queryset = Meeting.objects.all()
+
+    def create(self, request: Request, **kwargs):
+        serializer = CreateMeetingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        Meeting.objects.create(
+            title=serializer.validated_data["title"],
+            description=serializer.validated_data["description"],
+            note="",
+            start_time=serializer.validated_data["start_time"],
+            duration=timedelta(minutes=serializer.validated_data["duration"]),
+            is_private=True,
+            is_cancelled=False,
+            cancellation_reason="",
+        )
+
+        return Response(status=200)
 
 
 class AccountViewSet(viewsets.ModelViewSet):

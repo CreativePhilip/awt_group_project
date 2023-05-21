@@ -2,6 +2,8 @@ import * as React from 'react';
 import {MeetingCreationDialog} from "./MeetingCreationDialog";
 import {useEffect, useRef, useState} from "react";
 import {range} from "../utils/range";
+import {Meeting} from "../api/models/meeting";
+import {listMeetings} from "../api/meetings";
 
 type Props = {}
 
@@ -15,10 +17,10 @@ const weekdays = [
 
 
 export function CalendarWeekView(props: Props) {
+    const { meetings} = useMeetings()
     const hours = range(24).map(v => v)
     const currentTime = (() => {
         const d = new Date()
-        console.log([d.getHours() + d.getMinutes(), d.getHours()])
         return d.getHours() * 60 + d.getMinutes()
     })()
 
@@ -36,10 +38,21 @@ export function CalendarWeekView(props: Props) {
             return 0
         }
 
-
         const ratio = minutes / (24 * 60)
 
         return ratio * calendarDivRef.current!.getBoundingClientRect().height
+    }
+
+    const topForMeeting = (meeting: Meeting) => {
+        const date = new Date(meeting.start_time)
+        return heightForMinutes( (date.getHours() * 60) + date.getMinutes())
+    }
+
+    const heightForMeeting = (meeting: Meeting) => {
+        if (meeting.total_minutes <= 30) {
+            return heightForMinutes(30)
+        }
+        return heightForMinutes(meeting.total_minutes)
     }
 
     return (
@@ -55,22 +68,71 @@ export function CalendarWeekView(props: Props) {
                 }
             </div>
 
-            <div className="grid grid-cols-6 items-stretch overflow-x-hidden overflow-y-scroll relative h-[2000px]" ref={calendarDivRef}>
+            <div className="grid grid-cols-6 gap-6 items-stretch overflow-x-hidden overflow-y-scroll relative h-[2000px]" ref={calendarDivRef}>
                 <div/>
                 <div className="relative mondays">
-                    <div className="absolute bg-blue-300 rounded py-2 px-8 text-white h-20 top-[500px]"> Important meeting af </div>
+                   {
+                        meetings.map(meeting => (
+                            <MeetingCard
+                                key={meeting.id}
+                                meeting={meeting}
+                                top={topForMeeting(meeting)}
+                                height={heightForMeeting(meeting)}
+                            />
+                        ))
+                    }
                 </div>
 
                 <div className="relative tuesdays">
-                    <div className="absolute bg-blue-500 rounded py-2 px-8 text-white" style={{top: heightForMinutes(9 * 60)}}> Important meeting af </div>
+                    {
+                        meetings.map(meeting => (
+                            <MeetingCard
+                                key={meeting.id}
+                                meeting={meeting}
+                                top={topForMeeting(meeting)}
+                                height={heightForMeeting(meeting)}
+                            />
+                        ))
+                    }
+                </div>
+
+                <div className="relative wednesday">
+                    {
+                        meetings.map(meeting => (
+                            <MeetingCard
+                                key={meeting.id}
+                                meeting={meeting}
+                                top={topForMeeting(meeting)}
+                                height={heightForMeeting(meeting)}
+                            />
+                        ))
+                    }
                 </div>
 
                 <div className="relative thursdays">
-                    <div className="absolute bg-blue-500 rounded py-2 px-8 text-white" style={{top: heightForMinutes((12 * 60) + 30)}}> Important meeting af </div>
+                    {
+                        meetings.map(meeting => (
+                            <MeetingCard
+                                key={meeting.id}
+                                meeting={meeting}
+                                top={topForMeeting(meeting)}
+                                height={heightForMeeting(meeting)}
+                            />
+                        ))
+                    }
                 </div>
 
                 <div className="relative fridays">
-                    <div className="absolute bg-gray-500 w-full rounded py-2 px-8 text-white" style={{top: heightForMinutes((12 * 60) + 30)}}> Reserved slot </div>
+                    {
+                        meetings.map(meeting => (
+                            <MeetingCard
+                                key={meeting.id}
+                                meeting={meeting}
+                                top={topForMeeting(meeting)}
+                                height={heightForMeeting(meeting)}
+                            />
+                        ))
+                    }
                 </div>
 
                 <span className="absolute border w-full border-red-600" style={{top: heightForMinutes(currentTime)}}/>
@@ -88,4 +150,26 @@ export function CalendarWeekView(props: Props) {
             </div>
         </div>
     )
+}
+
+
+function MeetingCard({meeting, top, height}: {meeting: Meeting, top: number, height: number}) {
+    return <div
+    className="absolute bg-blue-500 rounded py-2 px-8 text-white w-full"
+    style={{top, height}} >
+        {meeting.title} {meeting.total_minutes}
+    </div>
+}
+
+
+function useMeetings() {
+    const [meetings, setMeetings] = useState<Meeting[]>([])
+
+    useEffect(() => {
+        listMeetings().then(meetings => {
+            setMeetings(meetings)
+        })
+    }, [])
+
+    return {meetings}
 }

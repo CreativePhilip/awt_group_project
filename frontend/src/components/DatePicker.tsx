@@ -4,6 +4,7 @@ import { Fragment, useState } from "react"
 
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "@heroicons/react/20/solid"
 import { computeDaysForMonth, DaysForMonthType } from "./datePickerUtils";
+import {useField} from "formik";
 
 export type DatePickerProps = {
     label: string
@@ -130,4 +131,15 @@ export function DatePicker(props: DatePickerProps) {
             </Popover>
         </div>
     )
+}
+
+
+type FormDatePickerProps = {
+    name: string
+} & DatePickerProps
+
+
+export function FormDatePicker(props: FormDatePickerProps) {
+    const [field, meta, helpers] = useField(props.name)
+    return <DatePicker label={props.label} onChange={helpers.setValue} initialDate={field.value} />
 }

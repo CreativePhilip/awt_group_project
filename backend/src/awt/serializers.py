@@ -26,15 +26,28 @@ class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
         fields = [
+            "id",
             "title",
             "description",
             "note",
             "start_time",
-            "duration",
+            "total_minutes",
             "is_private",
             "is_cancelled",
             "cancellation_reason",
             "participants",
+        ]
+
+class CreateMeetingSerializer(serializers.ModelSerializer):
+    duration = serializers.IntegerField()
+
+    class Meta:
+        model = Meeting
+        fields = [
+            "title",
+            "description",
+            "start_time",
+            "duration"
         ]
 
 
@@ -53,7 +66,6 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "id"]
-
 
 
 class UserSerializer(serializers.ModelSerializer):
