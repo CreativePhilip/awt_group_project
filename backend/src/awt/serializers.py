@@ -52,4 +52,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username, id"]
+        fields = ["username", "id"]
