@@ -24,6 +24,8 @@ from awt.views import (
     UsersViewSet,
     ValidateMeetingView,
     CalculateTimeSpendWeekly,
+    CalculateTimeSpendMonthly,
+    CalculateTimeSpendYearly
 )
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -46,4 +48,6 @@ urlpatterns = [
     path("api/whoami/", CurrentUserView.as_view()),
     path("api/validate_meeting", ValidateMeetingView.as_view()),
     path("api/meetings_duration/weekly", CalculateTimeSpendWeekly.as_view()),
+    path("api/meetings_duration/monthly", CalculateTimeSpendMonthly.as_view()),
+    path("api/meetings_duration/yearly", CalculateTimeSpendYearly.as_view()),
 ]

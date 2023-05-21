@@ -18,6 +18,7 @@ from awt.serializers import (
     UserMeetingRelationSerializer,
 )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from collections import defaultdict
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -179,3 +180,95 @@ class CalculateTimeSpendWeekly(APIView):
                 result[meeting_time.weekday()] = int(meeting.duration.seconds / 60)
 
         return Response(status=200, data=result, content_type="application/json")
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Id of the user",
+            type=int,
+            default="1",
+        ),
+        OpenApiParameter(
+            name="month",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="In numerical value, ex. May would be 5",
+            type=int,
+            default="5",
+        ),
+        OpenApiParameter(
+            name="year",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Self explanatory",
+            type=int,
+            default="2023",
+        ),
+    ],
+)
+class CalculateTimeSpendMonthly(APIView):
+    def get(self, request: Request):
+        user_id = int(request.query_params.get("user_id"))
+        month = int(request.query_params.get("month"))
+        year = int(request.query_params.get("year"))
+
+        if None in [user_id, month, year]:
+            return Response(status=400)
+
+        relations = UserMeetingRelation.objects.filter(
+            meeting__start_time__month=month,
+            meeting__start_time__year=year,
+            user__id=user_id,
+        )
+        data = defaultdict(lambda: 0)
+        
+        for relation in relations:
+            meeting = relation.meeting
+            data[meeting.start_time.day] += int(meeting.duration.seconds / 60)
+        
+        return Response(status=200, data=data, content_type="application/json")
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Id of the user",
+            type=int,
+            default="1",
+        ),
+        OpenApiParameter(
+            name="year",
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description="Self explanatory",
+            type=int,
+            default="2023",
+        ),
+    ],
+)
+class CalculateTimeSpendYearly(APIView):
+    def get(self, request: Request):
+        user_id = int(request.query_params.get("user_id"))
+        year = int(request.query_params.get("year"))
+
+        if None in [user_id, year]:
+            return Response(status=400)
+
+        relations = UserMeetingRelation.objects.filter(
+            meeting__start_time__year=year,
+            user__id=user_id,
+        )
+        data = defaultdict(lambda: 0)
+        
+        for relation in relations:
+            meeting = relation.meeting
+            data[meeting.start_time.month] += int(meeting.duration.seconds / 60)
+        
+        return Response(status=200, data=data, content_type="application/json")
