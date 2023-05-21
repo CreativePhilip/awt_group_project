@@ -25,7 +25,7 @@ from awt.views import (
     ValidateMeetingView,
     CalculateTimeSpendWeekly,
     CalculateTimeSpendMonthly,
-    CalculateTimeSpendYearly
+    CalculateTimeSpendYearly,
 )
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
