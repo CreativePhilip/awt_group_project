@@ -16,7 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from awt.views import MeetingViewSet, LoginView, RegisterView, CurrentUserView, UsersViewSet
+from awt.views import (
+    MeetingViewSet,
+    LoginView,
+    RegisterView,
+    CurrentUserView,
+    UsersViewSet,
+    ValidateMeetingView,
+    CalculateTimeSpendWeekly,
+    CalculateTimeSpendMonthly,
+    CalculateTimeSpendYearly,
+)
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
@@ -35,5 +45,9 @@ urlpatterns = [
     ),
     path("api/login/", LoginView.as_view()),
     path("api/register/", RegisterView.as_view()),
-    path("api/whoami/", CurrentUserView.as_view())
+    path("api/whoami/", CurrentUserView.as_view()),
+    path("api/validate_meeting", ValidateMeetingView.as_view()),
+    path("api/meetings_duration/weekly", CalculateTimeSpendWeekly.as_view()),
+    path("api/meetings_duration/monthly", CalculateTimeSpendMonthly.as_view()),
+    path("api/meetings_duration/yearly", CalculateTimeSpendYearly.as_view()),
 ]

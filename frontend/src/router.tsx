@@ -5,6 +5,8 @@ import { CalendarWeekView } from "./views/CalendarWeekView";
 import {LoginView} from "./views/LoginView";
 import {LoggedInRoute} from "./components/LoggedInRoute";
 import {RegisterView} from "./views/RegisterView";
+import MeetingsDurationGraph from "./components/MeetingDurationGraph";
+import TextEditorViewRoot from "./views/TextEditorViewRoot";
 
 
 export const router = createBrowserRouter([
@@ -23,7 +25,15 @@ export const router = createBrowserRouter([
             {
                 path: "/week",
                 element: <LoggedInRoute> <CalendarWeekView/> </LoggedInRoute>
-            }
+            },
         ]
+    },
+    {
+        path    : "/text_editor",
+        element: <TextEditorViewRoot/>
+    },
+    {
+        path    : "/meetings_duration",
+        element: <MeetingsDurationGraph/>
     }
 ])
