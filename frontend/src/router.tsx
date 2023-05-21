@@ -6,6 +6,7 @@ import {LoginView} from "./views/LoginView";
 import {LoggedInRoute} from "./components/LoggedInRoute";
 import {RegisterView} from "./views/RegisterView";
 import TextEditor from "./components/TextEditor";
+import MeetingsDurationGraph from "./components/MeetingDurationGraph";
 
 
 export const router = createBrowserRouter([
@@ -30,5 +31,9 @@ export const router = createBrowserRouter([
     {
         path    : "/text_editor",
         element: <TextEditor></TextEditor>
+    },
+    {
+        path    : "/meetings_duration",
+        element: <MeetingsDurationGraph/>
     }
 ])
