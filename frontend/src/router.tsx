@@ -5,6 +5,7 @@ import { CalendarWeekView } from "./views/CalendarWeekView";
 import {LoginView} from "./views/LoginView";
 import {LoggedInRoute} from "./components/LoggedInRoute";
 import {RegisterView} from "./views/RegisterView";
+import TextEditor from "./components/TextEditor";
 
 
 export const router = createBrowserRouter([
@@ -25,5 +26,9 @@ export const router = createBrowserRouter([
                 element: <LoggedInRoute> <CalendarWeekView/> </LoggedInRoute>
             }
         ]
+    },
+    {
+        path    : "/text_editor",
+        element: <TextEditor></TextEditor>
     }
 ])
