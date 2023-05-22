@@ -12,10 +12,16 @@ class Meeting(models.Model):
     is_cancelled = models.BooleanField()
     cancellation_reason = models.TextField(default="", blank=True)
 
+    @property
+    def total_minutes(self) -> int:
+        return self.duration.total_seconds() // 60
+
 
 class UserMeetingRelation(models.Model):
     meeting = models.ForeignKey(
-        Meeting, related_name="participants", on_delete=models.CASCADE
+        Meeting,
+        related_name="participants",
+        on_delete=models.CASCADE,
     )
     is_owner = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

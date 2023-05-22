@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useField } from "formik"
-import {Input} from "./Input";
+import {Input, LongInput} from "./Input";
 
 
 type FormInputProps = {
@@ -20,6 +20,30 @@ export function FormInput(props: FormInputProps) {
     return (
         <div className="w-full">
             <Input
+                name={props.name}
+                label={props.label}
+                onChange={helpers.setValue}
+                onBlur={field.onBlur}
+                type={props.type}
+            />
+
+            {
+                hasError && renderErrors ? <p className="text-red-600"> {meta.error} </p> : null
+            }
+        </div>
+    )
+}
+
+
+export function FormLongInput(props: FormInputProps) {
+    const [field, meta, helpers] = useField(props.name)
+
+    const hasError = meta.touched && !!meta.error
+    const renderErrors = props.renderErrors ?? true
+
+    return (
+        <div className="w-full">
+            <LongInput
                 name={props.name}
                 label={props.label}
                 onChange={helpers.setValue}

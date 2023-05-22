@@ -1,4 +1,5 @@
-import datetime
+from datetime import timedelta, datetime, time
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,6 @@ from rest_framework.request import Request
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
-from awt.serializers import MeetingSerializer
 from awt.models import Meeting, UserMeetingRelation
 from awt.serializers import (
     LoginSerializer,
@@ -15,7 +15,7 @@ from awt.serializers import (
     LoggedInUserSerializer,
     UserSerializer,
     MeetingSerializer,
-    UserMeetingRelationSerializer,
+    CreateMeetingSerializer,
 )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from collections import defaultdict
@@ -24,6 +24,23 @@ from collections import defaultdict
 class MeetingViewSet(viewsets.ModelViewSet):
     serializer_class = MeetingSerializer
     queryset = Meeting.objects.all()
+
+    def create(self, request: Request, **kwargs):
+        serializer = CreateMeetingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        Meeting.objects.create(
+            title=serializer.validated_data["title"],
+            description=serializer.validated_data["description"],
+            note="",
+            start_time=serializer.validated_data["start_time"],
+            duration=timedelta(minutes=serializer.validated_data["duration"]),
+            is_private=True,
+            is_cancelled=False,
+            cancellation_reason="",
+        )
+
+        return Response(status=200)
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -116,10 +133,10 @@ class ValidateMeetingView(APIView):
                 planned_end = (planned_start + planned_meeting.duration).replace(
                     tzinfo=None
                 )
-                proposed_start = datetime.datetime.strptime(
+                proposed_start = datetime.strptime(
                     proposed_start_time, "%d.%m.%Y %H:%M:%S"
                 )
-                proposed_end = proposed_start + datetime.timedelta(
+                proposed_end = proposed_start + timedelta(
                     minutes=proposed_duration
                 )
 
@@ -163,8 +180,8 @@ class CalculateTimeSpendWeekly(APIView):
         if None in [user_id, start_date_value]:
             return Response(status=400)
 
-        start_date = datetime.datetime.strptime(start_date_value, "%d.%m.%Y")
-        end_date = start_date + datetime.timedelta(days=4)
+        start_date = datetime.strptime(start_date_value, "%d.%m.%Y")
+        end_date = start_date + timedelta(days=4)
         relations = UserMeetingRelation.objects.filter(
             user__id=user_id,
         )
