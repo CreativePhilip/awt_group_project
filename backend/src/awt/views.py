@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime, time
 
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -29,7 +30,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         serializer = CreateMeetingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        Meeting.objects.create(
+        meeting = Meeting.objects.create(
             title=serializer.validated_data["title"],
             description=serializer.validated_data["description"],
             note="",
@@ -40,17 +41,42 @@ class MeetingViewSet(viewsets.ModelViewSet):
             cancellation_reason="",
         )
 
+        UserMeetingRelation.objects.create(
+            meeting=meeting,
+            is_owner=True,
+            user=request.user,
+        )
+
+        for participant in serializer.validated_data["participants"]:
+            UserMeetingRelation.objects.create(
+                meeting=meeting,
+                is_owner=False,
+                user_id=participant,
+            )
+
         return Response(status=200)
 
 
-class AccountViewSet(viewsets.ModelViewSet):
-    serializer_class = MeetingViewSet
+class AccountViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MeetingSerializer
     queryset = Meeting.objects.all()
 
 
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        query = request.query_params.get("q")
+
+        if not query:
+            return Response(status=200, data=[])
+
+        users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))[:3]
+        out_serializer = self.serializer_class(users, many=True)
+        data = out_serializer.data
+
+        return Response(status=200, data=data)
 
 
 class LoginView(APIView):
@@ -62,7 +88,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = authenticate(request, **serializer.validated_data)
-        print(request.data, user)
+
         if user:
             login(request, user)
             return Response(status=204)

@@ -16,6 +16,10 @@ class Meeting(models.Model):
     def total_minutes(self) -> int:
         return self.duration.total_seconds() // 60
 
+    @property
+    def participants(self) -> "UserMeetingRelation":
+        return UserMeetingRelation.objects.filter(meeting=self)
+
 
 class UserMeetingRelation(models.Model):
     meeting = models.ForeignKey(

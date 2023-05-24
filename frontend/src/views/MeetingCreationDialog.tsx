@@ -18,7 +18,7 @@ export function MeetingCreationDialog(props: Props) {
                         Create a new meeting and have fun
                     </Dialog.Description>
                     <div className="mt-4 max-h-[80vh] overflow-y-scroll">
-                        <MeetingCreationForm/>
+                        <MeetingCreationForm onSubmit={() => props.onClose(false)}/>
                     </div>
                 </Dialog.Panel>
             </div>

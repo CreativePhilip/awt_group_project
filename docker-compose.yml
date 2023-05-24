@@ -30,7 +30,7 @@ services:
     networks:
       - awt_internal
     ports:
-      - 8000:8000
+      - "8000:8000"
 
   frontend:
     container_name: awt_front
@@ -94,6 +94,8 @@ services:
       - ./backend/local.env
     networks:
       - awt_internal
+    ports:
+      - "5432:5432"
 
   media_server:
     container_name: awt_local_back_media
