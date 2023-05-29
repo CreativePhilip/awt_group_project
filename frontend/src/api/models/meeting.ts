@@ -1,3 +1,5 @@
+import {User} from "./user";
+
 export type Meeting = {
     id: number
     title: string
@@ -8,4 +10,5 @@ export type Meeting = {
     is_private: boolean
     is_cancelled: boolean
     cancellation_reason: string
+    participants: User[]
 }

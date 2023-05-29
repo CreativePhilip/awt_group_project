@@ -11,20 +11,23 @@ type RegisterFormType = {
     username: string
     email: string
     password: string
+    password_repeat: string
 }
 
 
 const initialValues: RegisterFormType = {
     username: "",
     email: "",
-    password: ""
+    password: "",
+    password_repeat: ""
 }
 
 
 const schema = yup.object<RegisterFormType>().shape({
     username: yup.string().required(),
     email: yup.string().email().required(),
-    password: yup.string().required()
+    password: yup.string().required(),
+    password_repeat: yup.string().required().oneOf([yup.ref("password")], "Passwords must match")
 })
 
 
@@ -48,6 +51,7 @@ export function RegisterView() {
                         <FormInput name="username" label="Username"/>
                         <FormInput name="email" label="Email"/>
                         <FormInput name="password" label="Password" type="password"/>
+                        <FormInput name="password_repeat" label="Confirm password" type="password"/>
 
                         <button className="mt-10 w-full" type="submit"> Submit </button>
                     </Form>

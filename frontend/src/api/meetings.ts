@@ -1,5 +1,6 @@
 import axios from "axios";
 import {Meeting} from "./models/meeting";
+import {User} from "./models/user";
 
 export async function createMeeting(data: object) {
     const response = await axios.post("/api/meeting/", data)

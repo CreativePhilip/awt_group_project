@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email"]
+        fields = ["id", "username", "email"]
 
 
 class UserMeetingRelationSerializer(serializers.ModelSerializer):
@@ -38,8 +38,10 @@ class MeetingSerializer(serializers.ModelSerializer):
             "participants",
         ]
 
+
 class CreateMeetingSerializer(serializers.ModelSerializer):
     duration = serializers.IntegerField()
+    participants = serializers.ListSerializer(child=serializers.IntegerField())
 
     class Meta:
         model = Meeting
@@ -47,7 +49,8 @@ class CreateMeetingSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "start_time",
-            "duration"
+            "duration",
+            "participants",
         ]
 
 

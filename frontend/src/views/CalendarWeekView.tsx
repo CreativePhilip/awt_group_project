@@ -17,7 +17,7 @@ const weekdays = [
 
 
 export function CalendarWeekView(props: Props) {
-    const { meetings} = useMeetings()
+    const {meetings, reload} = useMeetings()
     const hours = range(24).map(v => v)
     const currentTime = (() => {
         const d = new Date()
@@ -45,7 +45,7 @@ export function CalendarWeekView(props: Props) {
 
     const topForMeeting = (meeting: Meeting) => {
         const date = new Date(meeting.start_time)
-        return heightForMinutes( (date.getHours() * 60) + date.getMinutes())
+        return heightForMinutes((date.getHours() * 60) + date.getMinutes())
     }
 
     const heightForMeeting = (meeting: Meeting) => {
@@ -57,8 +57,13 @@ export function CalendarWeekView(props: Props) {
 
     return (
         <div className="p-6">
-            <button onClick={() => setIsCreateMeetingOpen(true)} type="button" className="bg-blue-700 text-white rounded shadow p-2 font-light relative"> New meeting</button>
-            <MeetingCreationDialog open={isCreateMeetingOpen} onClose={() => setIsCreateMeetingOpen(false)}/>
+            <button onClick={() => setIsCreateMeetingOpen(true)} type="button"
+                    className="bg-blue-700 text-white rounded shadow p-2 font-light relative"> New meeting
+            </button>
+            <MeetingCreationDialog open={isCreateMeetingOpen} onClose={() => {
+                setIsCreateMeetingOpen(false)
+                reload()
+            }}/>
             <div className="grid grid-cols-6 items-stretch overflow-hidden relative">
                 <div/>
                 {
@@ -68,10 +73,12 @@ export function CalendarWeekView(props: Props) {
                 }
             </div>
 
-            <div className="grid grid-cols-6 gap-6 items-stretch overflow-x-hidden overflow-y-scroll relative h-[2000px]" ref={calendarDivRef}>
+            <div
+                className="grid grid-cols-6 gap-6 items-stretch overflow-x-hidden overflow-y-scroll relative h-[2000px]"
+                ref={calendarDivRef}>
                 <div/>
                 <div className="relative mondays">
-                   {
+                    {
                         meetings.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
@@ -153,11 +160,11 @@ export function CalendarWeekView(props: Props) {
 }
 
 
-function MeetingCard({meeting, top, height}: {meeting: Meeting, top: number, height: number}) {
+function MeetingCard({meeting, top, height}: { meeting: Meeting, top: number, height: number }) {
     return <div
-    className="absolute bg-blue-500 rounded py-2 px-8 text-white w-full"
-    style={{top, height}} >
-        {meeting.title} {meeting.total_minutes}
+        className="absolute bg-blue-500 rounded py-2 px-8 text-white w-full"
+        style={{top, height}}>
+        {meeting.title} {meeting.total_minutes} {meeting.participants.length}
     </div>
 }
 
@@ -166,10 +173,15 @@ function useMeetings() {
     const [meetings, setMeetings] = useState<Meeting[]>([])
 
     useEffect(() => {
+        reload()
+    }, [])
+
+
+    const reload = () => {
         listMeetings().then(meetings => {
             setMeetings(meetings)
         })
-    }, [])
+    }
 
-    return {meetings}
+    return {meetings, reload}
 }
