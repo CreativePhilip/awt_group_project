@@ -1,12 +1,12 @@
 import * as React from 'react'
-import {Form, Formik, useField} from "formik"
-import {XMarkIcon} from "@heroicons/react/24/solid"
+import {Form, Formik, useField, useFormikContext} from "formik"
+import {XMarkIcon, ExclamationTriangleIcon} from "@heroicons/react/24/solid"
 import {Input, LongInput} from "../components/Input"
 import {Toggle} from '../components/Toggle'
 import {DatePicker, FormDatePicker} from "../components/DatePicker";
 import {FormInput, FormLongInput} from "../components/FormInput";
 import {createMeeting} from "../api/meetings";
-import {searchUsers} from "../api/users";
+import {checkMeetingConflicts, searchUsers} from "../api/users";
 import {useEffect, useState} from "react";
 import {useDebounce} from "../hooks/useDebounce";
 import {User} from "../api/models/user";
@@ -116,16 +116,7 @@ export function PersonSelector() {
                         <div className="flex flex-col gap-2">
                             {
                                 field.value.map(u => (
-                                    <div className="flex" key={u.id}>
-                                        <img src="https://randomuser.me/api/portraits/women/54.jpg"
-                                             alt="person"
-                                             className="h-6 w-6 rounded-full"/>
-                                        <span className="ml-1"> {u.username} </span>
-                                        <button onClick={() => onUserRemove(u)} className="ml-auto">
-                                            <XMarkIcon
-                                                className="h-4 w-4 self-center hover:ring rounded-full cursor-pointer"/>
-                                        </button>
-                                    </div>
+                                    <ParticipantUserCard user={u} key={u.id} onClick={() => onUserRemove(u)}/>
                                 ))
                             }
                         </div>
@@ -137,12 +128,7 @@ export function PersonSelector() {
                         <div className="flex flex-col gap-2">
                             {
                                 filteredUsers.map(u => (
-                                    <div className="flex" key={u.id}>
-                                        {u.username}
-                                        <button className="ml-auto" type="button" onClick={() => onUserAdd(u)}>
-                                            add
-                                        </button>
-                                    </div>
+                                    <AddUserCard key={u.id} user={u} onClick={() => onUserAdd(u)}/>
                                 ))
                             }
                         </div>
@@ -165,3 +151,56 @@ function useLoadPeople(query: string) {
 
     return users
 }
+
+
+function AddUserCard(props: { user: User, onClick: () => void }) {
+    const form = useFormikContext<MeetingCreateFormType>()
+    const hasConflict = useHasConflicts(props.user, form.values.start_time, form.values.duration)
+
+    return (
+        <div className="flex">
+            {props.user.username}
+            {hasConflict && <ExclamationTriangleIcon className="ml-auto h-6 w-6 text-yellow-600"/>}
+            {!hasConflict && <span className="ml-auto" />}
+            <button className="ml-2" type="button" onClick={props.onClick}>
+                add
+            </button>
+        </div>
+    )
+}
+
+
+function ParticipantUserCard(props: { user: User, onClick: () => void }) {
+    const form = useFormikContext<MeetingCreateFormType>()
+    const hasConflict = useHasConflicts(props.user, form.values.start_time, form.values.duration)
+
+    return (
+        <div className="flex">
+            <img src="https://randomuser.me/api/portraits/women/54.jpg"
+                 alt="person"
+                 className="h-6 w-6 rounded-full"/>
+            <span className="ml-1"> {props.user.username} </span>
+
+            {hasConflict && <ExclamationTriangleIcon className="ml-auto h-6 w-6 text-yellow-600"/>}
+            {!hasConflict && <span className="ml-auto" />}
+            <button onClick={props.onClick} className="ml-2">
+                <XMarkIcon
+                    className="h-4 w-4 self-center hover:ring rounded-full cursor-pointer"/>
+            </button>
+        </div>
+    )
+}
+
+
+function useHasConflicts(user: User, date: Date, duration: number) {
+    const [hasConflict, setHasConflict] = useState(false)
+
+    useEffect(() => {
+        checkMeetingConflicts(user.id, date, duration).then(setHasConflict)
+        console.log([user.id, date, duration])
+    }, [user, date, duration])
+
+    return hasConflict
+}
+
+

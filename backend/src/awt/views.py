@@ -3,6 +3,7 @@ import calendar
 
 from django.db.models import Q
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
@@ -17,10 +18,12 @@ from awt.serializers import (
     LoggedInUserSerializer,
     UserSerializer,
     MeetingSerializer,
-    CreateMeetingSerializer,
+    CreateMeetingSerializer, MeetingsByDateSerializer,
 )
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from collections import defaultdict
+
+from awt.utils import get_week_bounds_from_date, filter_meetings_by_weekday
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -56,6 +59,34 @@ class MeetingViewSet(viewsets.ModelViewSet):
             )
 
         return Response(status=200)
+
+    @action(methods=["get"], detail=False, url_path="by_date")
+    def list_by_date(self, request: Request):
+        value = datetime.fromisoformat(request.query_params.get("date"))
+        start_date, end_date = get_week_bounds_from_date(value)
+
+        # TODO: filter also by users
+        queryset = self.queryset.filter(start_time__gte=start_date)
+
+        final_meetings = [
+            meeting
+            for meeting in queryset
+            if meeting.start_time + meeting.duration <= end_date
+        ]
+
+        meetings_by_day = {
+            "monday": filter_meetings_by_weekday(final_meetings, 0),
+            "tuesday": filter_meetings_by_weekday(final_meetings, 1),
+            "wednesday": filter_meetings_by_weekday(final_meetings, 2),
+            "thursday": filter_meetings_by_weekday(final_meetings, 3),
+            "friday": filter_meetings_by_weekday(final_meetings, 4)
+        }
+
+        data = {
+            key: self.serializer_class(value, many=True).data
+            for key, value in meetings_by_day.items()
+        }
+        return Response(data, status=200)
 
 
 class AccountViewSet(viewsets.ReadOnlyModelViewSet):
@@ -157,15 +188,9 @@ class ValidateMeetingView(APIView):
             if relation.user_id == user_id:
                 planned_meeting = Meeting.objects.get(id=relation.meeting_id)
                 planned_start = planned_meeting.start_time.replace(tzinfo=None)
-                planned_end = (planned_start + planned_meeting.duration).replace(
-                    tzinfo=None
-                )
-                proposed_start = datetime.strptime(
-                    proposed_start_time, "%d.%m.%Y %H:%M:%S"
-                )
-                proposed_end = proposed_start + timedelta(
-                    minutes=proposed_duration
-                )
+                planned_end = (planned_start + planned_meeting.duration).replace(tzinfo=None)
+                proposed_start = datetime.fromisoformat(proposed_start_time).replace(tzinfo=None)
+                proposed_end = proposed_start + timedelta(minutes=proposed_duration)
 
                 if proposed_start < planned_end and planned_start < proposed_end:
                     return Response(
@@ -175,7 +200,9 @@ class ValidateMeetingView(APIView):
                     )
 
         return Response(
-            status=200, data={"valid": True}, content_type="application/json"
+            status=200,
+            data={"valid": True},
+            content_type="application/json",
         )
 
 

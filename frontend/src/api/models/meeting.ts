@@ -12,3 +12,12 @@ export type Meeting = {
     cancellation_reason: string
     participants: User[]
 }
+
+
+export type MeetingsByWeekday = {
+    monday: Meeting[],
+    tuesday: Meeting[],
+    wednesday: Meeting[],
+    thursday: Meeting[],
+    friday: Meeting[]
+}
