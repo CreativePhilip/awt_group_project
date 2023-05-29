@@ -4,6 +4,9 @@ import { Fragment, useState } from "react"
 
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "@heroicons/react/20/solid"
 import { computeDaysForMonth, DaysForMonthType } from "./datePickerUtils";
+import { IconButton } from "./IconButton";
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+
 
 export type DatePickerProps = {
     initialDate?: Date
@@ -12,14 +15,13 @@ export type DatePickerProps = {
 
 const WEEKDAY_LABEL_CLASSES = "font-semibold text-center text-gray-500 mb-2"
 
-
 export function MonthDisplay(props: DatePickerProps) {
     // TODO: Change position to above input when close to bottom screen edge
     const initialDate = props.initialDate ?? new Date()
 
     const [year, _] = useState(initialDate.getFullYear())
     const [month, setMonth] = useState(initialDate.getMonth())
-    const testDate = new Date(year, month, 1)
+    const [testDate, setTestDate] = useState(new Date(year, month, 1));
 
     const daysList = computeDaysForMonth(testDate)
 
@@ -58,14 +60,32 @@ export function MonthDisplay(props: DatePickerProps) {
         props.onChange?.(new Date(year, month, day))
     }
 
+    const onNextMonthClick = () => {
+        const currentData = new Date(testDate);
+        const currentMonth = currentData.getMonth();
+        currentData.setMonth(currentMonth+1);
+        setTestDate(currentData);
+    };
+
+    const onPreviousMonthClick = () => {
+        const currentData = new Date(testDate);
+        const currentMonth = currentData.getMonth();
+        currentData.setMonth(currentMonth-1);
+        setTestDate(currentData);
+    };
+
     return (
         <div className="">
             <div className=" max-w-md aspect-square p-2 rounded">
 
 
-                <span className="mx-auto">
-                    {testDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                </span>
+                <div className="flex">
+                    <IconButton onClick={onPreviousMonthClick} icon={faArrowLeft}/>
+                    <span className="mx-auto">
+                        {testDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                    </span>
+                    <IconButton onClick={onNextMonthClick} icon={faArrowRight}/> 
+                </div>
 
                 <div className="mt-2 grid grid-cols-7 h-auto">
                     <div className={WEEKDAY_LABEL_CLASSES}>M</div>
