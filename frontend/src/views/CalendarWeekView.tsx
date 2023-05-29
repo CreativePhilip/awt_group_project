@@ -2,8 +2,8 @@ import * as React from 'react';
 import {MeetingCreationDialog} from "./MeetingCreationDialog";
 import {useEffect, useRef, useState} from "react";
 import {range} from "../utils/range";
-import {Meeting} from "../api/models/meeting";
-import {listMeetings} from "../api/meetings";
+import {Meeting, MeetingsByWeekday} from "../api/models/meeting";
+import {listMeetings, listMeetingsInWeek} from "../api/meetings";
 
 type Props = {}
 
@@ -79,7 +79,7 @@ export function CalendarWeekView(props: Props) {
                 <div/>
                 <div className="relative mondays">
                     {
-                        meetings.map(meeting => (
+                        meetings.monday.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
                                 meeting={meeting}
@@ -92,7 +92,7 @@ export function CalendarWeekView(props: Props) {
 
                 <div className="relative tuesdays">
                     {
-                        meetings.map(meeting => (
+                        meetings.tuesday.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
                                 meeting={meeting}
@@ -105,7 +105,7 @@ export function CalendarWeekView(props: Props) {
 
                 <div className="relative wednesday">
                     {
-                        meetings.map(meeting => (
+                        meetings.wednesday.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
                                 meeting={meeting}
@@ -118,7 +118,7 @@ export function CalendarWeekView(props: Props) {
 
                 <div className="relative thursdays">
                     {
-                        meetings.map(meeting => (
+                        meetings.thursday.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
                                 meeting={meeting}
@@ -131,7 +131,7 @@ export function CalendarWeekView(props: Props) {
 
                 <div className="relative fridays">
                     {
-                        meetings.map(meeting => (
+                        meetings.friday.map(meeting => (
                             <MeetingCard
                                 key={meeting.id}
                                 meeting={meeting}
@@ -170,7 +170,14 @@ function MeetingCard({meeting, top, height}: { meeting: Meeting, top: number, he
 
 
 function useMeetings() {
-    const [meetings, setMeetings] = useState<Meeting[]>([])
+    const initial: MeetingsByWeekday = {
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: []
+    }
+    const [meetings, setMeetings] = useState<MeetingsByWeekday>(initial)
 
     useEffect(() => {
         reload()
@@ -178,7 +185,11 @@ function useMeetings() {
 
 
     const reload = () => {
-        listMeetings().then(meetings => {
+        // listMeetings().then(meetings => {
+        //     setMeetings(meetings)
+        // })
+
+        listMeetingsInWeek(new Date()).then(meetings => {
             setMeetings(meetings)
         })
     }

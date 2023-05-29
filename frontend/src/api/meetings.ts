@@ -1,6 +1,5 @@
 import axios from "axios";
-import {Meeting} from "./models/meeting";
-import {User} from "./models/user";
+import {Meeting, MeetingsByWeekday} from "./models/meeting";
 
 export async function createMeeting(data: object) {
     const response = await axios.post("/api/meeting/", data)
@@ -17,4 +16,11 @@ export async function addMeetingNote(meetingId: number, data: object) {
     } catch (e) {
      return null;
     }
+}
+
+
+
+export async function listMeetingsInWeek(date: Date): Promise<MeetingsByWeekday> {
+    const response = await axios.get("/api/meeting/by_date/", {params: {date}})
+    return response.data
 }

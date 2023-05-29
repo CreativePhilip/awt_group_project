@@ -39,6 +39,14 @@ class MeetingSerializer(serializers.ModelSerializer):
         ]
 
 
+class MeetingsByDateSerializer(serializers.Serializer):
+    monday = MeetingSerializer(many=True)
+    tuesday = MeetingSerializer(many=True)
+    wednesday = MeetingSerializer(many=True)
+    thursday = MeetingSerializer(many=True)
+    friday = MeetingSerializer(many=True)
+
+
 class CreateMeetingSerializer(serializers.ModelSerializer):
     duration = serializers.IntegerField()
     participants = serializers.ListSerializer(child=serializers.IntegerField())
