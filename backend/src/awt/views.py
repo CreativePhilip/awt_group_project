@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime, time
+import calendar
 
 from django.db.models import Q
 from rest_framework import viewsets
@@ -312,6 +313,7 @@ class CalculateTimeSpendYearly(APIView):
 
         for relation in relations:
             meeting = relation.meeting
-            data[meeting.start_time.month] += int(meeting.duration.seconds / 60)
+            month_name = calendar.month_name[meeting.start_time.month]
+            data[month_name] += int(meeting.duration.seconds / 60)
 
         return Response(status=200, data=data, content_type="application/json")
