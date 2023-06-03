@@ -10,3 +10,11 @@ export async function listMeetings(): Promise<Meeting[]> {
     const response = await axios.get("/api/meeting/")
     return response.data
 }
+
+export async function addMeetingNote(meetingId: number, data: object) {
+    try {
+        return await axios.patch(`/api/meeting/${meetingId}/`, data);
+    } catch (e) {
+     return null;
+    }
+}
