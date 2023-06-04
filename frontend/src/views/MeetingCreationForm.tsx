@@ -159,7 +159,7 @@ function AddUserCard(props: { user: User, onClick: () => void }) {
 
     return (
         <div className="flex">
-            {props.user.username}
+            {props.user.first_name} {props.user.last_name}
             {hasConflict && <ExclamationTriangleIcon className="ml-auto h-6 w-6 text-yellow-600"/>}
             {!hasConflict && <span className="ml-auto" />}
             <button className="ml-2" type="button" onClick={props.onClick}>
@@ -179,7 +179,7 @@ function ParticipantUserCard(props: { user: User, onClick: () => void }) {
             <img src="https://randomuser.me/api/portraits/women/54.jpg"
                  alt="person"
                  className="h-6 w-6 rounded-full"/>
-            <span className="ml-1"> {props.user.username} </span>
+            <span className="ml-1"> {props.user.first_name} {props.user.last_name} </span>
 
             {hasConflict && <ExclamationTriangleIcon className="ml-auto h-6 w-6 text-yellow-600"/>}
             {!hasConflict && <span className="ml-auto" />}
