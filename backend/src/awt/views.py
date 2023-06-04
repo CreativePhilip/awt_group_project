@@ -104,7 +104,13 @@ class UsersViewSet(viewsets.ModelViewSet):
         if not query:
             return Response(status=200, data=[])
 
-        users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))[:3]
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        )[:3]
+
         out_serializer = self.serializer_class(users, many=True)
         data = out_serializer.data
 
