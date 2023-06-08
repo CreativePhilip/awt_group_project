@@ -12,7 +12,7 @@ import { Bar } from "react-chartjs-2";
 import SelectOption from "./Select";
 import useDateSelector from "../hooks/useDateSelector";
 import SecondaryButton from "./SecondaryButton";
-import { date } from "yup";
+import { getCurrentUser } from '../api/login';
 
 ChartJS.register(
   CategoryScale,
@@ -37,7 +37,7 @@ function getGraphData(labels: Array<string>, values: Array<number>) {
     labels,
     datasets: [
       {
-        label: "Hours spend on meetings",
+        label: "Minutes spend on meetings",
         data: values,
         backgroundColor: "rgba(255, 158, 99, 1)",
       },
@@ -52,9 +52,9 @@ export default function MeetingsDurationGraph() {
     { value: "year", label: "Yearly" },
   ];
 
-  const [userId, setUserId] = useState<number>(1);
+  const [userId, setUserId] = useState<number>();
   const dateNow = new Date(Date.now());
-  const dateSelector = useDateSelector(userId, {
+  const dateSelector = useDateSelector(userId!, {
     day: dateNow.getDate(),
     month: dateNow.getMonth() + 1,
     year: dateNow.getFullYear(),
@@ -63,14 +63,23 @@ export default function MeetingsDurationGraph() {
   const dateOptions = dateSelector.options;
   const graphData = dateSelector.graphData;
 
+  const getCurrentUserId = async () => {
+    const user = await getCurrentUser();
+    setUserId(user?.id);
+  }
+
+  useEffect(() => {
+    getCurrentUserId();
+  }, [])
+
   return (
-    <div className="grid justify-items-center items-start">
+    <div className="grid justify-items-center items-start w-[1500px]">
       <SelectOption
         options={timelineOptions}
         onChange={modifiers.setSelectedPeriod}
         containerStyle="justify-self-end"
       />
-      <div className="flex justify-between w-screen">
+      <div className="flex justify-between w-[1500px]">
         <SecondaryButton
           onClick={modifiers.goToPrevious}
           text={dateOptions.previousOption.label}

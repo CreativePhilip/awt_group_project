@@ -4,6 +4,8 @@ import {useEffect, useRef, useState} from "react";
 import {range} from "../utils/range";
 import {Meeting, MeetingsByWeekday} from "../api/models/meeting";
 import {listMeetings, listMeetingsInWeek} from "../api/meetings";
+import { useNavigate } from "react-router-dom";
+import SecondaryButton from '../components/SecondaryButton';
 
 type Props = {}
 
@@ -23,11 +25,13 @@ export function CalendarWeekView(props: Props) {
         const d = new Date()
         return d.getHours() * 60 + d.getMinutes()
     })()
-
+    
     const [isCreateMeetingOpen, setIsCreateMeetingOpen] = useState(false)
     const calendarDivRef = useRef<HTMLDivElement | null>(null)
 
     const [hourLines, setHourLines] = useState<number[]>([])
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         setHourLines(hours.map(v => heightForMinutes(v * 60)))
@@ -57,9 +61,13 @@ export function CalendarWeekView(props: Props) {
 
     return (
         <div className="p-6">
-            <button onClick={() => setIsCreateMeetingOpen(true)} type="button"
-                    className="bg-blue-700 text-white rounded shadow p-2 font-light relative"> New meeting
-            </button>
+            <div className="flex justify-between">
+                <button onClick={() => setIsCreateMeetingOpen(true)} type="button"
+                        className="bg-blue-700 text-white rounded shadow p-2 font-light relative"> New meeting
+                </button>
+                <SecondaryButton onClick={()=>navigate("/meetings_duration")} text='Time on meetings'/>
+            </div>
+            
             <MeetingCreationDialog open={isCreateMeetingOpen} onClose={() => {
                 setIsCreateMeetingOpen(false)
                 reload()
@@ -161,10 +169,17 @@ export function CalendarWeekView(props: Props) {
 
 
 function MeetingCard({meeting, top, height}: { meeting: Meeting, top: number, height: number }) {
+    const navigate = useNavigate();
     return <div
         className="absolute bg-blue-500 rounded py-2 px-8 text-white w-full"
+        onClick={()=>{navigate("/meetings_note", {
+            state: {
+                meetingId: meeting.id
+            }
+        })}}
         style={{top, height}}>
         {meeting.title} {meeting.total_minutes} {meeting.participants.length}
+        
     </div>
 }
 

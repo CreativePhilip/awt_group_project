@@ -18,6 +18,15 @@ export async function addMeetingNote(meetingId: number, data: object) {
     }
 }
 
+export async function getMeeting(meetingId: number): Promise<Meeting|null> {
+    try {
+        const response = await axios.get(`/api/meeting/${meetingId}/`);
+        return response.data;
+    } catch (e) {
+     return null;
+    }
+}
+
 
 
 export async function listMeetingsInWeek(date: Date): Promise<MeetingsByWeekday> {

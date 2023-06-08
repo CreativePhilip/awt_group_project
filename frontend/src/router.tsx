@@ -26,14 +26,14 @@ export const router = createBrowserRouter([
                 path: "/week",
                 element: <LoggedInRoute> <CalendarWeekView/> </LoggedInRoute>
             },
+            {
+                path    : "/meetings_note",
+                element: <LoggedInRoute> <TextEditorViewRoot/> </LoggedInRoute>
+            },
+            {
+                path    : "/meetings_duration",
+                element: <LoggedInRoute> <MeetingsDurationGraph/> </LoggedInRoute>
+            }
         ]
     },
-    {
-        path    : "/text_editor",
-        element: <TextEditorViewRoot/>
-    },
-    {
-        path    : "/meetings_duration",
-        element: <MeetingsDurationGraph/>
-    }
 ])

@@ -193,7 +193,6 @@ export default function useDateSelector(
     }
     if (selectedPeriod == "week") {
       const previousDate = previousOption.value as Date;
-      console.log(previousDate);
       setDate({
         day: previousDate.getDate(),
         month: previousDate.getMonth() + 1,
@@ -205,7 +204,6 @@ export default function useDateSelector(
   useEffect(() => {
     getData();
     updatePeriodTitle();
-    console.log("date in useEffect", date);
   }, [selectedPeriod, date]);
 
   return {
